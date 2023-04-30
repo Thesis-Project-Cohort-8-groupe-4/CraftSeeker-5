@@ -4,14 +4,14 @@ const conn = mysql.createConnection({
     host: "localhost",
     user: "root",
     password : "Saif1234",
-    database: "carftseeker"
+    database: "craftseeker"
 })
 
 conn.connect((err)=>{
     if(err){
         console.log(err)
     }
-    console.log("connected to carftseeker")
+    console.log("connected to craftseeker")
 })
 
 module.exports=conn
