@@ -4,17 +4,20 @@ const conn = require("./database")
 const app = express()
 app.use(express.json())
 app.use(cors())
+const workerRouter = require ('./routers/routerWorker.js')
+const clientRouter= require('./routers/routerClient.js')
+const reviewRouter = require("./routers/routerReviews")
+const taskRouter = require("./routers/routerTasks")
+const reportsOftheClientRouter = require("./routers/routerReportsOfTheClients")
+const reportsOftheWorkerRouter = require("./routers/routerReportsOfTheWorkers")
 
-app.get('/api',(req,res)=>{
-    const sql = "select * from workers;"
-     conn.query(sql,(err,results)=>{
-        if (err){
-            console.log(err)
-            res.status(500).json(err)
-        }
-        res.status(200).json(results)
-     })
-}) 
+
+app.use('/api/clients',clientRouter)
+app.use('/api/workers',workerRouter)
+app.use('/api/reviews',reviewRouter)
+app.use('/api/tasks',taskRouter)
+app.use('/api/reportsofclients',reportsOftheClientRouter)
+app.use('/api/reportsofworkers',reportsOftheWorkerRouter)
 
 
 

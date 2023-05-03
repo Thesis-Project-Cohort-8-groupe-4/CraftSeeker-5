@@ -11,7 +11,7 @@ conn.connect((err)=>{
     if(err){
         console.log(err)
     }
-    console.log("connected to carftseeker")
+    console.log("connected to craftseeker")
 })
 
 module.exports=conn
