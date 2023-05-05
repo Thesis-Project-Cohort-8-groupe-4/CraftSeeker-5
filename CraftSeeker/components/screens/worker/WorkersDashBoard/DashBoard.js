@@ -1,8 +1,12 @@
-import React from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+
+
+import { useNavigation } from '@react-navigation/native';
 
 const Dashboard = () => {
 
+    const navigation = useNavigation();
 
     return (
         <>
@@ -18,7 +22,6 @@ const Dashboard = () => {
                     </View>
                     <View style={styles.lastTask}>
                         <Text>Last Task Review</Text>
-
                     </View>
                     <View style={styles.offerRequests}>
                         <Text>Offers Requests</Text>
@@ -36,13 +39,15 @@ const Dashboard = () => {
                             <Text>Available in : 5 days</Text>
 
                         </View>
-                        <View style={styles.ratings}><Text>Ratings</Text></View>
-                        
-                        <View style={styles.history}><Text>Show History</Text></View>
-                        
+                        <View style={styles.ratings}>
+                            
+                        </View>
+                        <TouchableOpacity style={styles.history} onPress={() => navigation.navigate('TaskHistory')}>
+                            <Text>Show History</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
-   
+
             </View>
         </>
     );
@@ -53,13 +58,16 @@ const styles = StyleSheet.create({
     logoContainer: {
         flexDirection: 'row',
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
+        marginBottom: 0,
+        backgroundColor: "#d8d1d1"
     },
     logo: {
         width: 140,
         height: 140,
     },
     container: {
+        paddingTop: 0,
         flex: 1,
         justifyContent: "space-between",
         width: "100%",
@@ -139,5 +147,3 @@ const styles = StyleSheet.create({
 
 
 })
-
-

@@ -1,84 +1,149 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Platform,
+  Button,
+} from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import axios from 'axios';
 
-const Edit = ({ worker, onSave ,navigation}) => {
-  const [name, setName] = useState(worker.name);
-  const [email, setEmail] = useState(worker.email);
-  const [address, setAddress] = useState(worker.address);
-  const [bio, setBio] = useState(worker.bio);
-  const [website, setWebsite] = useState(worker.website);
-  const [phone, setPhone] = useState(worker.phone);
+const Edit = () => {
+  const [workerFirstName, setFirstName] = useState('');
+  const [workerLastName, setLastName] = useState('');
+  const [workerEmail, setEmail] = useState('');
+  const [workerAddress, setAddress] = useState('');
+  const [workerCategory, setCategory] = useState('');
+  const [workerPhoneNumber, setPhone] = useState('');
+  const [profilePicture, setProfilePicture] = useState(null);
 
-  const handleSave = () => {
-    const updatedWorker = {
-      worker,
-      name,
-      email,
-      address,
-      bio,
-      website,
-      phone,
-    };
-    onSave(updatedWorker);
+  useEffect(() => {
+    (async () => {
+      if (Platform.OS !== 'web') {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+          alert('Sorry, we need camera roll permissions to make this work!');
+        }
+      }
+    })();
+  }, []);
+
+  const handleSelectPicture = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.cancelled) {
+      setProfilePicture(result.uri);
+    }
+  };
+
+  const handleSave = async () => {
+    const data = new FormData();
+    data.append('profilePicture', {
+      uri: profilePicture,
+      type: 'image/jpeg',
+      name: 'profilePicture.jpg',
+    });
+    data.append('firstName', workerFirstName);
+    data.append('lastName', workerLastName);
+    data.append('email', workerEmail);
+    data.append('address', workerAddress);
+    data.append('category', workerCategory);
+    data.append('phoneNumber', workerPhoneNumber);
+
+    try {
+      const response = await axios.put('https://your-api-url/worker', data);
+      // set the state values to the updated worker information
+      setFirstName(response.data.firstName);
+      setLastName(response.data.lastName);
+      setEmail(response.data.email);
+      setAddress(response.data.address);
+      setCategory(response.data.category);
+      setPhone(response.data.phoneNumber);
+      alert('Profile updated successfully!');
+    } catch (error) {
+      alert('Failed to update profile.');
+    }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Name</Text>
+    <ScrollView >
+      <TouchableOpacity style={styles.profilePictureContainer} onPress={handleSelectPicture}>
+        {profilePicture ? (
+          <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
+        ) : (
+          <View style={styles.profilePicturePlaceholder}>
+            <Text style={styles.profilePicturePlaceholderText}>Choose a Profile Picture</Text>
+          </View>
+        )}
+      </TouchableOpacity>
+
+      <Text style={styles.label}>First Name</Text>
       <TextInput
         style={styles.input}
-        value={name}
-        onChangeText={setName}
+        value={workerFirstName}
+        onChangeText={setFirstName}
+      />
+
+      <Text style={styles.label}>Last Name</Text>
+      <TextInput
+        style={styles.input}
+        value={workerLastName}
+        onChangeText={setLastName}
       />
 
       <Text style={styles.label}>Email</Text>
       <TextInput
         style={styles.input}
-        value={email}
+        value={workerEmail}
         onChangeText={setEmail}
       />
 
       <Text style={styles.label}>Address</Text>
       <TextInput
         style={styles.input}
-        value={address}
+        value={workerAddress}
         onChangeText={setAddress}
       />
 
-      <Text style={styles.label}>Bio</Text>
+      <Text style={styles.label}>Category</Text>
       <TextInput
         style={styles.input}
-        value={bio}
-        onChangeText={setBio}
-      />
-
-      <Text style={styles.label}>Website</Text>
-      <TextInput
-        style={styles.input}
-        value={website}
-        onChangeText={setWebsite}
+        value={workerCategory}
+        
+        onChangeText={setCategory}
       />
 
       <Text style={styles.label}>Phone</Text>
       <TextInput
         style={styles.input}
-        value={phone}
+        value={workerPhoneNumber}
         onChangeText={setPhone}
       />
 
       <Button title="Save" onPress={handleSave} />
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    padding: 10,
+    
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginTop: 10,
+    marginTop: 60,
   },
   input: {
     borderWidth: 1,
@@ -87,6 +152,26 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 15,
   },
+  profilePicturePlaceholderText : {
+    fontSize: 18,
+    color: '#888',
+    textAlign: 'center',
+    padding: 30,
+  },
+  profilePicture: {
+    width: '100%',
+    height: '100%',
+  },
+  profilePictureContainer: {
+    marginTop : 20,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: '#eee',
+    marginBottom: 20,
+    overflow: 'hidden',
+  },
+
 });
 
 export default Edit;
