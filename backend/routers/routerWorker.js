@@ -37,7 +37,7 @@ workerRouter.put('/completeAprofile/:id', (req, res) => {
     const { workerProfessionalSummary, workerYearsOfExperience } = req.body;
     const sql = `UPDATE workers
                  SET workerProfessionalSummary = ?, workerYearsOfExperience = ? ,workerFirstName = ? , workerLastName = ? , workerAdress= ? , workerEmail=?, workerCategory= ? , workerDateOfBirth= ? , workerPhoneNumber = ?,workerJob=?, workerPassword = ? , workerNumberOfJobs=?
-                 WHERE workersId = ?`;
+                 WHERE workersId = ?, `;
     conn.query(sql, [workerNumberOfJobs, workerPassword, workerJob, workerPhoneNumber, workerDateOfBirth, workerCategory, workerEmail, workerAdress, workerLastName, workerFirstName, workerProfessionalSummary, workerYearsOfExperience, id], (err, results) => {
         if (err) {
             console.log(err);
@@ -46,6 +46,21 @@ workerRouter.put('/completeAprofile/:id', (req, res) => {
         res.status(200).json(results);
     });
 });
+workerRouter.put('/update/:id', (req, res) => {
+    const id = req.params.id;
+    const { workerProfessionalSummary, workerYearsOfExperience,workerFirstName, workerLastName, workerAdress, workerEmail, workerCategory, workerDateOfBirth, workerPhoneNumber, workerJob, workerPassword, workerNumberOfJobs } = req.body;
+    const sql = `UPDATE workers
+                 SET workerFirstName = ? , workerLastName = ? , workerAdress= ? , workerEmail=?, workerCategory= ? , workerDateOfBirth= ? , workerPhoneNumber = ?,workerJob=?, workerPassword = ? , workerNumberOfJobs=?
+                 WHERE workersId = ?`;
+    conn.query(sql, [workerFirstName, workerLastName, workerAdress, workerEmail, workerCategory, workerDateOfBirth, workerPhoneNumber, workerJob, workerPassword, workerNumberOfJobs, id], (err, results) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json(err);
+      }
+      res.status(200).json(results);
+    });
+  });
+  
 
 workerRouter.delete('/deleteWorker/:id', (req, res) => {
     const id = req.params.id;

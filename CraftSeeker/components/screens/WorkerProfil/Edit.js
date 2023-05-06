@@ -11,7 +11,11 @@ import {
   Button,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+
 import axios from 'axios';
+
+
 
 const Edit = () => {
   const [workerFirstName, setFirstName] = useState('');
@@ -33,7 +37,7 @@ const Edit = () => {
     })();
   }, []);
 
-  const handleSelectPicture = async () => {
+  const handleSelectPicturee = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -42,6 +46,39 @@ const Edit = () => {
     });
 
     if (!result.cancelled) {
+      setProfilePicture(result.uri);
+    }
+  };
+
+  const handleSelectPicture = async () => {
+    let result = null;
+    
+    if (Platform.OS === 'web') {
+      // On web, use file input to select a picture
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = (event) => {
+        result = event.target.files[0];
+      };
+      input.click();
+    } else {
+      // On native platforms, launch the camera app
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Sorry, we need camera permissions to make this work!');
+        return;
+      }
+      
+      result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+    }
+  
+    if (result) {
       setProfilePicture(result.uri);
     }
   };
@@ -61,7 +98,7 @@ const Edit = () => {
     data.append('phoneNumber', workerPhoneNumber);
 
     try {
-      const response = await axios.put('https://your-api-url/worker', data);
+      const response = await axios.put(`http://localhost:4000/api/Workers/update${id}`, data);
       // set the state values to the updated worker information
       setFirstName(response.data.firstName);
       setLastName(response.data.lastName);
@@ -77,15 +114,20 @@ const Edit = () => {
 
   return (
     <ScrollView >
-      <TouchableOpacity style={styles.profilePictureContainer} onPress={handleSelectPicture}>
+      <TouchableOpacity style={styles.profilePictureContainer} onPress={handleSelectPicturee}>
         {profilePicture ? (
           <Image source={{ uri: profilePicture }} style={styles.profilePicture} />
         ) : (
           <View style={styles.profilePicturePlaceholder}>
             <Text style={styles.profilePicturePlaceholderText}>Choose a Profile Picture</Text>
+            
+
+
           </View>
         )}
       </TouchableOpacity>
+      <Button title="Select Picture" onPress={handleSelectPicture} />
+
 
       <Text style={styles.label}>First Name</Text>
       <TextInput

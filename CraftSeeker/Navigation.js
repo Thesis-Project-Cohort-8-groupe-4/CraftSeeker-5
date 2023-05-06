@@ -5,6 +5,10 @@ import Edit from './components/screens/WorkerProfil/Edit';
 import WorkerProfil from './components/screens/WorkerProfil/WorkerProfil';
 import Dashboard from './components/screens/worker/WorkersDashBoard/DashBoard'
 const Stack = createNativeStackNavigator();
+
+
+
+
 export default function Navigation() {
 
     
@@ -15,6 +19,7 @@ export default function Navigation() {
       {/* <Stack.Screen name="Dashboard" component={Dashboard} /> */}
       <Stack.Screen name = "WorkerProfil" component={WorkerProfil}/>
       <Stack.Screen name="Edit" component={Edit} />
+       
     </Stack.Navigator>
   </NavigationContainer>
   )

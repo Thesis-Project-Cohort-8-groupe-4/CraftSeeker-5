@@ -2,10 +2,11 @@ import React from 'react';
 import { StyleSheet, View, Image, Text  } from 'react-native';
 import { Card, Button, Icon } from 'react-native-elements';
 
+
 import { useState } from 'react';
 
 import { useNavigation } from '@react-navigation/native';
-import Edit from './Edit.js'
+
 
 const WorkerProfil = () => {
   const [available, setAvailable] = useState(true);
@@ -37,20 +38,7 @@ const WorkerProfil = () => {
           <Icon name="linkedin" type="font-awesome" />
         </View>
       </Card>
-
-
-
-        {/* <Button 
-          icon={<Icon name="edit" type="font-awesome" color="#ffffff" 
-          onPress={() => navigation.navigate('Edit')}/>}
-          title="Edit"
-          buttonStyle={styles.editButton}
-          /> */}
-          
-   
-   
-
-          <Button 
+    <Button 
   icon={<Icon name="edit" type="font-awesome" color="#ffffff" />}
   title="Edit"
   onPress={() => navigation.navigate('Edit')}
