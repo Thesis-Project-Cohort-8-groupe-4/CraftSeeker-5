@@ -1,29 +1,29 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import DashBoard from './components/workers/DashBoard/DashBoard';
-
+import { useEffect, useState } from 'react';
+import { Button, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { io } from "socket.io-client";
+import ChatWindow from './components/screens/ChatWindow';
+import{ NativeBaseProvider} from "native-base"
+import WorkerProfil from './components/screens/WorkerProfil/WorkerProfil';
+import SignIn from './components/screens/SignIn';
+import SignUpWorker from './components/screens/worker/RegisterWorker';
+import Inbox from './components/screens/Inbox';
 export default function App() {
-  const dummy = ["a", "b", "d", "c", "e", "a", "ez", "aze"];
-  const [data, setData] = useState(dummy);
+
 
   return (
-    <View style={styles.container}>
+    <NativeBaseProvider>
+    <View>
       <Text>life is shit</Text>
       <StatusBar style="auto" />
       <ScrollView>
-      <DashBoard></DashBoard>
+        {/* <WorkerProfil></WorkerProfil> */}
+          {/* <ChatWindow></ChatWindow> */}
+        {/* <SignIn></SignIn> */}
+        {/* <SignUpWorker></SignUpWorker> */}
+        <Inbox></Inbox>
       </ScrollView>
     </View>
+    </NativeBaseProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    marginLeft: 33,
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
-});

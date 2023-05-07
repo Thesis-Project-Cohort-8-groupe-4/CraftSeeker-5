@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS `craftseeker`.`clients` (
   `clientPhone` VARCHAR(45) NOT NULL,
   `clientDateOfBirth` DATE NOT NULL,
   `clientLastName` VARCHAR(45) NOT NULL,
+  `clientPassword` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`clientId`),
   UNIQUE INDEX `idclients_UNIQUE` (`clientId` ASC) VISIBLE,
   UNIQUE INDEX `clientEmail_UNIQUE` (`clientEmail` ASC) VISIBLE,
@@ -57,12 +58,34 @@ CREATE TABLE IF NOT EXISTS `craftseeker`.`workers` (
   `workerJob` VARCHAR(255) NOT NULL,
   `workerProfessionalSummary` LONGTEXT NULL DEFAULT NULL,
   `workerTotalRating` INT NULL DEFAULT NULL,
+  `workerBio` LONGTEXT NULL DEFAULT NULL,
   PRIMARY KEY (`workersId`),
   UNIQUE INDEX `workersId_UNIQUE` (`workersId` ASC) VISIBLE,
   UNIQUE INDEX `workerEmail_UNIQUE` (`workerEmail` ASC) VISIBLE,
   UNIQUE INDEX `workerPhoneNumber_UNIQUE` (`workerPhoneNumber` ASC) VISIBLE)
 ENGINE = InnoDB
 AUTO_INCREMENT = 6
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `craftseeker`.`chatrooms`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `craftseeker`.`chatrooms` (
+  `roomId` VARCHAR(255) NOT NULL,
+  `clientId` INT NOT NULL,
+  `workersId` INT NOT NULL,
+  PRIMARY KEY (`roomId`),
+  INDEX `clientId` (`clientId` ASC) VISIBLE,
+  INDEX `workersId` (`workersId` ASC) VISIBLE,
+  UNIQUE INDEX `roomId_UNIQUE` (`roomId` ASC) VISIBLE,
+  CONSTRAINT `reportsoftheworkers_ibfk_10`
+    FOREIGN KEY (`clientId`)
+    REFERENCES `craftseeker`.`clients` (`clientId`),
+  CONSTRAINT `reportsoftheworkers_ibfk_20`
+    FOREIGN KEY (`workersId`)
+    REFERENCES `craftseeker`.`workers` (`workersId`))
+ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
 
