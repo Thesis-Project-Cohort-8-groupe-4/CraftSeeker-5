@@ -39,7 +39,7 @@ clientRouter.get('/getone/:id',(req,res)=>{
     })
 })
 
-clientRouter.put('/updateuser/:id',(req,res)=>{
+clientRouter.put('/updateUser/:id',(req,res)=>{
     const id = req.params.id
     const {clientAdress}= req.body
     const {clientEmail} = req.body

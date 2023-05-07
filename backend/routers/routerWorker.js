@@ -7,6 +7,7 @@ const { authenticateToken } = require("../middlewares/jwt.js");
 const jwt = require('jsonwebtoken');
 
 
+
 workerRouter.post('/addworkerman',(req,res)=>{
     const{workerFirstName}= req.body
     const{workerLastName}= req.body
@@ -21,10 +22,11 @@ workerRouter.post('/addworkerman',(req,res)=>{
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`
     conn.query(sql ,[workerFirstName, workerLastName, workerAdress, workerEmail, workerCategory, workerDateOfBirth, workerPhoneNumber, workerJob,workerPassword],(err,results)=>{
           if (err){
+
             console.log(err)
             res.status(500).json(err)
-          }
-          res.status(200).json(results)
+        }
+        res.status(200).json(results)
     })
 })
 
@@ -68,9 +70,9 @@ workerRouter.put('/completeAprofile/:id', (req, res) => {
     const id = req.params.id;
     const { workerProfessionalSummary, workerYearsOfExperience } = req.body;
     const sql = `UPDATE workers
-                 SET workerProfessionalSummary = ?, workerYearsOfExperience = ?
-                 WHERE workersId = ?`;
-    conn.query(sql, [workerProfessionalSummary, workerYearsOfExperience, id], (err, results) => {
+                 SET workerProfessionalSummary = ?, workerYearsOfExperience = ? ,workerFirstName = ? , workerLastName = ? , workerAdress= ? , workerEmail=?, workerCategory= ? , workerDateOfBirth= ? , workerPhoneNumber = ?,workerJob=?, workerPassword = ? , workerNumberOfJobs=?
+                 WHERE workersId = ?, `;
+    conn.query(sql, [workerNumberOfJobs, workerPassword, workerJob, workerPhoneNumber, workerDateOfBirth, workerCategory, workerEmail, workerAdress, workerLastName, workerFirstName, workerProfessionalSummary, workerYearsOfExperience, id], (err, results) => {
         if (err) {
             console.log(err);
             res.status(500).json(err);
@@ -78,6 +80,21 @@ workerRouter.put('/completeAprofile/:id', (req, res) => {
         res.status(200).json(results);
     });
 });
+workerRouter.put('/update/:id', (req, res) => {
+    const id = req.params.id;
+    const { workerProfessionalSummary, workerYearsOfExperience,workerFirstName, workerLastName, workerAdress, workerEmail, workerCategory, workerDateOfBirth, workerPhoneNumber, workerJob, workerPassword, workerNumberOfJobs } = req.body;
+    const sql = `UPDATE workers
+                 SET workerFirstName = ? , workerLastName = ? , workerAdress= ? , workerEmail=?, workerCategory= ? , workerDateOfBirth= ? , workerPhoneNumber = ?,workerJob=?, workerPassword = ? , workerNumberOfJobs=?
+                 WHERE workersId = ?`;
+    conn.query(sql, [workerFirstName, workerLastName, workerAdress, workerEmail, workerCategory, workerDateOfBirth, workerPhoneNumber, workerJob, workerPassword, workerNumberOfJobs, id], (err, results) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json(err);
+      }
+      res.status(200).json(results);
+    });
+  });
+  
 
 workerRouter.delete('/deleteWorker/:id', (req, res) => {
     const id = req.params.id;
@@ -93,36 +110,10 @@ workerRouter.delete('/deleteWorker/:id', (req, res) => {
 });
 
 
-workerRouter.get('/getworkers',(req,res)=>{
-     const sql = `SELECT * FROM workers;` 
-     conn.query(sql,(err,results)=>{
-         if(err){
-            console.log(err)
-            res.status(500).json(err)
-         }
-         res.status(200).json(results)
-     })
-})
-
-workerRouter.get('/getWorker/:id',(req,res)=>{
-    const id = req.params.id
-    const sql = `SELECT * FROM workers WHERE workersId = ?;`
-    conn.query(sql ,[id], (err,results)=>{
-          if(err){
-            console.log(err)
-            res.status(500).json(err)
-          }
-          res.status(200).json(results)
-    }) 
-})
-
-workerRouter.put('/editprofile/:id',(req,res)=>{
-    const id = req.params.id
-    const{workerPhoneNumber,workerAdress,workerEmail,workerJob,workerCategory} = req.body
-    const sql= `UPDATE workers
-    SET workerPhoneNumber = ?, workerAdress = ?, workerEmail = ?, workerJob = ?, workerCategory = ? WHERE workersId = ?`;
-    conn.query(sql ,[workerPhoneNumber,workerAdress,workerEmail,workerJob,workerCategory,id],(err,results)=>{
-        if(err){
+workerRouter.get('/getworkers', (req, res) => {
+    const sql = `SELECT * FROM workers;`
+    conn.query(sql, (err, results) => {
+        if (err) {
             console.log(err)
             res.status(500).json(err)
         }
@@ -130,13 +121,39 @@ workerRouter.put('/editprofile/:id',(req,res)=>{
     })
 })
 
-workerRouter.put('/editWorkInfo/:id',(req,res)=>{
+workerRouter.get('/getWorker/:id', (req, res) => {
     const id = req.params.id
-    const{workerYearsOfExperience,workerProfessionalSummary} = req.body
-    const sql= `UPDATE workers
+    const sql = `SELECT * FROM workers WHERE workersId = ?;`
+    conn.query(sql, [id], (err, results) => {
+        if (err) {
+            console.log(err)
+            res.status(500).json(err)
+        }
+        res.status(200).json(results)
+    })
+})
+
+workerRouter.put('/editprofile/:id', (req, res) => {
+    const id = req.params.id
+    const { workerPhoneNumber, workerAdress, workerEmail, workerJob, workerCategory } = req.body
+    const sql = `UPDATE workers
+    SET workerPhoneNumber = ?, workerAdress = ?, workerEmail = ?, workerJob = ?, workerCategory = ? WHERE workersId = ?`;
+    conn.query(sql, [workerPhoneNumber, workerAdress, workerEmail, workerJob, workerCategory, id], (err, results) => {
+        if (err) {
+            console.log(err)
+            res.status(500).json(err)
+        }
+        res.status(200).json(results)
+    })
+})
+
+workerRouter.put('/editWorkInfo/:id', (req, res) => {
+    const id = req.params.id
+    const { workerYearsOfExperience, workerProfessionalSummary } = req.body
+    const sql = `UPDATE workers
     SET workerYearsOfExperience = ?, workerProfessionalSummary = ? WHERE workersId = ?;`
-    conn.query(sql ,[workerYearsOfExperience,workerProfessionalSummary,id],(err,results)=>{
-        if(err){
+    conn.query(sql, [workerYearsOfExperience, workerProfessionalSummary, id], (err, results) => {
+        if (err) {
             console.log(err)
             res.status(500).json(err)
         }

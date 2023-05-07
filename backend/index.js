@@ -3,9 +3,6 @@ const cors = require ("cors")
 const conn = require("./database")
 const app = express()
 
-app.use(express.json())
-app.use(cors())
-
 
 const workerRouter = require ('./routers/routerWorker.js')
 const clientRouter= require('./routers/routerClient.js')
@@ -15,10 +12,16 @@ const reportsOftheClientRouter = require("./routers/routerReportsOfTheClients")
 const reportsOftheWorkerRouter = require("./routers/routerReportsOfTheWorkers")
 const chatroomsRouter = require('./routers/chatroomsRouter.js')
 
+app.use(express.json())
+app.use(cors())
+
+
+
 app.use('/api/clients',clientRouter)
 app.use('/api/workers',workerRouter)
 app.use('/api/reviews',reviewRouter)
 app.use('/chatboxes',chatroomsRouter)
+
 app.use('/api/tasks',taskRouter)
 app.use('/api/reportsofclients',reportsOftheClientRouter)
 app.use('/api/reportsofworkers',reportsOftheWorkerRouter)
