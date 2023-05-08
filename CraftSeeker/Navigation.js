@@ -19,6 +19,7 @@ export default function Navigation() {
       {/* <Stack.Screen name="Dashboard" component={Dashboard} /> */}
       <Stack.Screen name = "WorkerProfil" component={WorkerProfil}/>
       <Stack.Screen name="Edit" component={Edit} />
+      
        
     </Stack.Navigator>
   </NavigationContainer>

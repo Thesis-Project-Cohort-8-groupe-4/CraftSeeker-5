@@ -14,12 +14,14 @@ import { NativeBaseProvider } from "native-base"
 import SignIn from './components/screens/SignIn';
 import SignUpWorker from './components/screens/worker/RegisterWorker';
 import Inbox from './components/screens/Inbox';
+import OffersRequests from './components/screens/worker/WorkersDashBoard/OffersRequests';
 
-const Stack = createStackNavigator();
+// const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <Navigation />
+    <OffersRequests/>
+    // <Navigation />
     // <NavigationContainer>
     //   <Stack.Navigator>
     //     {/* <Stack.Screen name="Dashboard" component={Dashboard} /> */}
