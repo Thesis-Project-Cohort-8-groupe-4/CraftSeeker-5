@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Image, Text, TextInput, StatusBar, Keyboard, TouchableOpacity, BackHandler, Alert ,navig} from 'react-native';
+import { StyleSheet, View, Image, Text, TextInput, StatusBar, Keyboard, TouchableOpacity, BackHandler, Alert, navig, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { CheckBox } from '@rneui/themed';
+import { Button, CheckBox } from '@rneui/themed';
 import googleSignInButton from '../../assets/google-signin-button.png';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-export default function SignIn() {
+export default function Authentication() {
 
   {/*HANDLERS*/ }
   const handleKeyboardDidHide = () => {
     setFocused(false);
     console.log("keyboard hid", focused);
   }
+  const toggleModal = () => {
+    setModalVisible(!modalVisible);
+  };
 
   const handleKeyboardDidShow = (event) => {
     setFocused(true);
@@ -24,17 +27,17 @@ export default function SignIn() {
   const handleSignIn = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      console.log(token,"localstorage");
+      console.log(token, "localstorage");
       if (token) {
         // if token exists, verify it and use it for authentication
         const response = await axios.post('http://192.168.0.84:4000/api/clients/login', {
           headers: { Authorization: `Bearer ${token}` },
         });
-  
+
         if (response.status === 200) {
           // token is valid, navigate to authenticated screen
           //navigation.navigate('AuthenticatedScreen');
-          console.log("login success with token",response.data);
+          console.log("login success with token", response.data);
         } else {
           // token is invalid, attempt to sign in
           await attemptSignIn();
@@ -48,21 +51,21 @@ export default function SignIn() {
       Alert.alert('Error', 'Failed to sign in. Please try again.');
     }
   };
-  
+
   const attemptSignIn = async () => {
     if (selected === 'client') {
       const response = await axios.post('http://192.168.0.84:4000/api/clients/login', {
         clientEmail: emailInput,
         clientPassword: passwordInput,
       });
-  
+
       if (response.status === 200) {
         // authentication successful, store token and navigate to authenticated screen
         await AsyncStorage.setItem('token', response.data.token);
         //navigation.navigate('AuthenticatedScreen');
-        console.log("login success without token",response.data);
-  
-        } else {
+        console.log("login success without token", response.data);
+
+      } else {
         // authentication failed, display error message
         Alert.alert('Error', response.data.message);
       }
@@ -71,11 +74,11 @@ export default function SignIn() {
         workerEmail: emailInput,
         workerPassword: passwordInput,
       });
-  
+
       if (response.status === 200) {
         // authentication successful, store token and navigate to authenticated screen
         await AsyncStorage.setItem('token', response.data.token);
-        console.log("login success worker without token",response.data);
+        console.log("login success worker without token", response.data);
 
         //navigation.navigate('AuthenticatedScreen');
       } else {
@@ -86,7 +89,7 @@ export default function SignIn() {
       Alert.alert('Select Client or Worker Please!');
     }
   };
-  
+
 
 
   {/*STATES*/ }
@@ -95,6 +98,7 @@ export default function SignIn() {
   const [selected, setSelected] = useState('');
   const [emailInput, setEmailInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
 
 
   {/*EFFECTS*/ }
@@ -178,17 +182,64 @@ export default function SignIn() {
       {/*LOGIN && REGISTER */}
       <View style={[styles.buttonContainer, { marginBottom: focused ? -50 : -20 }]}>
         <View style={[styles.button, styles.loginButton]}>
-          <TouchableOpacity style={{flex:1}}  onPress={handleSignIn}>
-            <Text style={styles.buttonText}>LOGIN</Text>
+          <TouchableOpacity style={{ flex: 1 }} onPress={handleSignIn}>
+            <Text style={styles.buttonText} >LOGIN</Text>
           </TouchableOpacity>
         </View>
-        
+
         <View style={[styles.button, styles.registerButton]}>
-          <TouchableOpacity onPress={() => console.log('Text pressed')}>
+          <TouchableOpacity onPress={toggleModal}>
             <Text style={styles.buttonText}>REGISTER</Text>
           </TouchableOpacity>
         </View>
       </View>
+
+      <Modal visible={modalVisible} animationType="slide">
+        <View style={{ flex: 2, justifyContent: "space-between", alignItems: 'center', marginTop: 50 }}>
+          <Text style={{ color: "#036BB9", fontSize: 35, justifyContent: 'flex-start', alignItems: 'center' }}>Register</Text>
+          <View style={{ flex: 1, justifyContent: "center", alignItems: 'center', marginTop: 150 }}>
+            <Button containerStyle={{
+              width: 200,
+              marginHorizontal: 50,
+              marginVertical: 10,
+              borderRadius: 10
+            }}
+            >As Client</Button>
+            <Button containerStyle={{
+              width: 200,
+              marginHorizontal: 50,
+              marginVertical: 10,
+              borderRadius: 10
+            }}>As Worker</Button>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Image
+              source={require('../../assets/logo.png')}
+              style={{ flex: 1 }}
+            />
+          </View>
+
+        
+          <Button
+            onPress={toggleModal}
+            title="Cancel"
+            containerStyle={{
+              height: 50,
+              width: 120,
+              marginHorizontal: 50,
+              marginVertical: 10,
+              borderRadius:10,
+              marginBottom:10
+            }}
+            buttonStyle={{ backgroundColor: 'rgba(255, 193, 7, 1)' }}
+            titleStyle={{
+              color: 'white',
+              marginHorizontal: 20,
+            }}
+          />
+        </View>
+      </Modal>
+
 
       {/*FINGERPRINT && GOOGLE*/}
       {!focused && (

@@ -1,49 +1,65 @@
-import React from 'react';
-import { StyleSheet, View, Image, Text  } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Image, Text } from 'react-native';
 import { Card, Button, Icon } from 'react-native-elements';
-
-
-import { useState } from 'react';
-
+import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 
 
-const WorkerProfil = () => {
+
+const WorkerProfil = (props) => {
+  console.log(props.route.params.id,'worker');
+  let id=props.route.params.id
+  const [worker, setWorker] = useState(null);
   const [available, setAvailable] = useState(true);
-   const navigation = useNavigation();
+  const navigation = useNavigation();
+  
+  
+  useEffect(() => {
+    fetchWorkerData(); // Fetch worker data when the component mounts
+  }, []);
+
+  const fetchWorkerData = async () => {
+    try {
+      const response = await axios.get(`http://192.168.104.23:4000/api/Workers/getWorker/${id}`); // Replace 'workerId' with the actual ID of the worker you want to fetch
+      setWorker(response.data)
+      console.log(response.data);
+    
+    } catch (error) {
+      console.log('Failed to fetch worker data:', error);
+    }
+  }
+  
+
+  if (!worker) {
+    return <Text>Loading...</Text>; // Show a loading indicator while fetching the worker data
+  }
 
   return (
     
     <View  style={styles.container}>
       <View style={styles.card}>
         <View style={styles.info}>
-          <Text style={styles.name}>John Doe</Text>
-          <Text style={styles.email}>johndoe@example.com</Text>
-          <Text style={styles.address}>123 Main Street, Anytown USA</Text>
+        {/* <Image source={require('./hi.png')} style={styles.image} /> */}
+          <Text style={styles.name}>{worker.FirstName}</Text>
+          <Text style={styles.email}>{worker.Email}</Text>
+          <Text style={styles.address}>{worker.Adress}</Text>
         </View>
       </View>
       <View style={styles.card}>
-        <Text style={styles.bio}>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec auctor velit eget metus fringilla, quis ultricies lectus hendrerit. Nulla eu dui a enim dictum vehicula.</Text>
+        <Text style={styles.bio}>{ worker.ProfessionalSummary}</Text>
       </View>
       <View style={styles.card}>
-        <Text style={styles.website}>Website: www.johndoe.com</Text>
-        <Text style={styles.phone}>Phone: (555) 123-4567</Text>
+        
+        <Text style={styles.phone}>{worker.PhoneNumber}</Text>
       </View>
 
-      <Card containerStyle={styles.card}>
-        <Text style={styles.title}>Social Media</Text>
-        <View style={styles.social}>
-          <Icon name="instagram" type="font-awesome" />
-          <Icon name="facebook" type="font-awesome" />
-          <Icon name="linkedin" type="font-awesome" />
-        </View>
-      </Card>
-    <Button 
+      <Button 
   icon={<Icon name="edit" type="font-awesome" color="#ffffff" />}
-  title="Edit"
-  onPress={() => navigation.navigate('Edit')}
+   title="Edit"
+  onPress={() => navigation.navigate('Edit', { id: worker.workersId})} 
   buttonStyle={styles.editButton}
 />
+
 
       <View style={styles.availablContainer }>
         <Button

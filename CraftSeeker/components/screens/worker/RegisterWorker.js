@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View, StatusBar, ScrollView, Image, Alert, TouchableHighlight } from 'react-native';
-import calendar from '../../../assets/calender.png';
+import calendarImage from '../../../assets/calender.png';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Title from '../shared/Title';
 import { Button } from '@rneui/themed/dist';
 import axios, { Axios } from 'axios';
 import { Picker } from '@react-native-picker/picker';
+import { useNavigation } from '@react-navigation/native';
+import WorkerProfil from '../WorkerProfil/WorkerProfil ';
+
+
+
+
 const SignUpWorker = () => {
   const [date, setDate] = useState(new Date());
   const [open, setOpen] = useState(false);
+  const navigation = useNavigation();
 
   const [userInfo, setUserInfo] = useState({
     firstName: '',
@@ -43,7 +50,7 @@ const SignUpWorker = () => {
     if (userInfo.confirmPassword !== userInfo.password) {
       Alert.alert("Passwords Dont Match!")
     } else {
-      axios.post("http://192.168.0.84:4000/api/workers/addworker", {
+      axios.post("http://192.168.104.23:4000/api/workers/addworker", {
         workerFirstName: firstName,
         workerLastName: lastName,
         workerAdress: address,
@@ -53,7 +60,9 @@ const SignUpWorker = () => {
         workerPhoneNumber: phoneNumber,
         workerJob: job,
         workerPassword: password
-      }).then((result) => console.log(result))
+      }).then((res) => {
+        console.log(res.data.insertId,'the res');
+        navigation.navigate ('WorkerProfil',{id:res.data.insertId})})
         .catch(err => console.log(err))
     }
   }
@@ -77,10 +86,10 @@ const SignUpWorker = () => {
   };
 
   return (
-    <View>
+    <View >
       <StatusBar backgroundColor="#4a90e2" barStyle="light-content" />
       <Title>Sign Up as a Worker</Title>
-      <ScrollView style={styles.scrollView}>
+      <ScrollView onPress={()=> console.log('wfffw')} style={styles.scrollView}>
         <TextInput style={styles.input} placeholder="First Name" onChangeText={text => handleInputChange('firstName', text)} />
         <TextInput style={styles.input} placeholder="Last Name" onChangeText={text => handleInputChange('lastName', text)} />
         <TextInput style={styles.input} placeholder="Email Adress" keyboardType="email-address" onChangeText={text => handleInputChange('email', text)} />
@@ -93,7 +102,7 @@ const SignUpWorker = () => {
         <View style={styles.dateContainer}>
           <Text style={styles.dateText}>Select Date Of Birth</Text>
           <TouchableOpacity style={styles.button} onPress={showDatepicker}>
-            <Image source={calendar} style={styles.calendarIcon} />
+            <Image source={calendarImage} style={styles.calendarIcon} />
           </TouchableOpacity>
           {open && (
             <DateTimePicker
@@ -129,8 +138,8 @@ const SignUpWorker = () => {
           style={{ flex: 1, alignSelf: "center", backgroundColor: '#83b5ed', width: "40%", borderRadius: 10, height: 30, justifyContent: "center" }}
           activeOpacity={0.6}
           underlayColor="#24b9e6"
-          onPress={handleSignup}>
-          <Text style={{ textAlign: "center" }}>Submit</Text>
+          onPress={handleSignup} >
+          <Text  style={{ textAlign: "center" }}>Submit</Text>
 
         </TouchableHighlight>
 
@@ -148,7 +157,8 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   scrollView: {
-    marginVertical: 15,
+    // marginVertical: 15,
+   
   },
   title: {
     color: '#0386D0',
@@ -201,3 +211,9 @@ const styles = StyleSheet.create({
 })
 
 export default SignUpWorker;
+
+
+
+
+
+

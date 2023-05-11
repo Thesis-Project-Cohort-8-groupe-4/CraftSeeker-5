@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Image, TouchableOpacity, TouchableHighlight, Text, FlatList } from 'react-native';
-import axios from 'axios';
+ import axios from 'axios';
+ import { useNavigation } from '@react-navigation/native';
 import { SearchBar } from 'react-native-elements';
+import Profil from './Profil/Profil';
 const HomePage = () => {
   const [isMenuVisible, setMenuVisible] = useState(false);
   const [data, setData] = useState([]);
+   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterVisible, setFilterVisible] = useState(false);
 const [isPriceAscending, setPriceAscending] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      const result = await axios.get('http://192.168.110.162:4000/api/workers/getWorkersInfo');
+      const result = await axios.get('http://192.168.1.155:4000/api/workers/getWorkersInfo');//192.168.110.162
       setData(result.data);
-      console.log(result)
+      console.log(result.data)
     };
     fetchData();
     
@@ -47,7 +50,7 @@ const [isPriceAscending, setPriceAscending] = useState(true);
 
     return (
       <View style={styles.card}>
-        <Image source={require('../CraftSeeker/hello.png')} style={styles.cardImage} />
+        <Image source={require('../client/hello.png')} style={styles.cardImage} />
         <View style={{ flexDirection: 'column' }}>
           <Text style={styles.cardTitle}>{item.workerFirstName}</Text>
           <Text style={styles.cardText}>{item.workerJob}</Text>
@@ -61,9 +64,9 @@ const [isPriceAscending, setPriceAscending] = useState(true);
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={{ flex:0.9 }} onPress={toggleMenu}>
-          <Image source={require('../CraftSeeker/menu-icon-5.png')} style={styles.menuIcon} />
+          <Image source={require('../client/menu-icon-5.png')} style={styles.menuIcon} />
         </TouchableOpacity>
-        <Image source={require('../CraftSeeker/Screenshot_1.png')} style={styles.logo} />
+        <Image source={require('../client/Screenshot_1.png')} style={styles.logo} />
         
          </View>
          {isFilterVisible && (
@@ -86,10 +89,10 @@ const [isPriceAscending, setPriceAscending] = useState(true);
           <TouchableOpacity style={styles.menuItem}>
             <Text>Home</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
-            <Text>Profile</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Profil')}>
+  <Text>Profile</Text>
+</TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem} onPress={()=>navigation.navigate('categories')}>
             <Text>Categories</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.menuItem, { marginBottom: 200 }]}>
@@ -122,14 +125,16 @@ const [isPriceAscending, setPriceAscending] = useState(true);
   onChangeText={(query) => setSearchQuery(query)}
 />
 <TouchableOpacity style={styles.filtring} onPress={toggleFilter}>
-  <Image source={require('../CraftSeeker/filter.png')} style={styles.filter} />
+  <Image source={require('../client/filter.png')} style={styles.filter} />
 </TouchableOpacity>
-      <FlatList
+<View style={styles.list}>  
+    <FlatList
         data={data}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        style={styles.list}
       />
+      </View>
+
     </View>
   );
 };
@@ -138,7 +143,7 @@ const [isPriceAscending, setPriceAscending] = useState(true);
 const styles = StyleSheet.create({
   container:{
     borderWidth : 17,
-    top:50,
+    top:0,
     height : 730,
     borderColor : "#036BB9",
     borderRadius: 10,
@@ -146,6 +151,7 @@ const styles = StyleSheet.create({
  },
  filter:{
 left:250,
+top:0,
  },
  filterMenu: {
   position: 'absolute',
@@ -229,6 +235,7 @@ filterMenuItemActive: {
     paddingHorizontal: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
+    height:110,
   },
 
   cardImage: {
@@ -248,9 +255,9 @@ filterMenuItemActive: {
     marginTop: 5,
   },
   list: {
-    flex: 1,
-    marginTop: 80,
-    top:65,
+    position:"relative",
+    marginTop:140, 
+    height:360,
   },
 });
 
