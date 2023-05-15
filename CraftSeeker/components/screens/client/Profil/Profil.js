@@ -1,37 +1,67 @@
-import React from 'react';
-import { View, Text, Image,StyleSheet} from 'react-native';
-import { Card, Button, Icon } from 'react-native-elements';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Text,Image} from 'react-native';
+import { Button, Icon } from 'react-native-elements';
+import axios from 'axios';
+import { useNavigation,useRoute } from '@react-navigation/native';
 
 
-const Profil = () => {
-  const navigation = useNavigation(); // get the navigation object
-  
+const Profil = (props) => {
+  const [client, setclient] = useState([]);
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { profilePictureUrl } = route.params;
+  console.log(props.route.params.id);
+
+
+  const fetchclientData = async () => {
+    try {
+      const response = await axios.get(`http://${url}:4000/api/clients/getone/${props.route.params.id}`);
+      setclient(response.data);
+    } catch (error) {
+      console.log('Failed to fetch worker data:', error);
+    }
+  }
+
+  useEffect(() => {
+    fetchclientData();
+  }, []);
+
+  if (client.length === 0) {
+    return <Text>Loading...</Text>;
+  }
+
+  const clientData = client[0]; // Get the first item in the worker array
+
+
+
+
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <Image source={require('./hi.png')} style={styles.image} />
+      {console.log(clientData.imageUrl.slice(1,clientData.imageUrl.length-1))}
+        
+        <Image source={{ uri: clientData.imageUrl.slice(1,clientData.imageUrl.length-1)}} style={styles.image} />
         <View style={styles.info}>
-          <Text style={styles.name}>nawres benali</Text>
-          <Text style={styles.email}>nawres@example.com</Text>
-          <Text style={styles.phone}>Phone: (555) 123-4567</Text>
-          <Text style={styles.address}>nabeul city haha</Text>
+          <Text style={styles.name}>{clientData.clientFirstName}</Text>
+          <Text style={styles.email}>{clientData.clientmail}</Text>
+          <Text style={styles.phone}>{clientData.clientFirstName}</Text>
+          <Text style={styles.address}>{clientData.clientFirstName}</Text>
         </View>
       </View>
       <View style={styles.card}>
-        <Text style={styles.requests}>the requests.</Text>
+        <Button style={styles.requests}>the requests.</Button>
       </View>
       <View style={styles.card}>
-        <Text style={styles.history}>we have some history here</Text>
+        <Button style={styles.history}>history</Button>
      
       </View>
       <View style={styles.container}>
-        <Button 
-          onPress={()=>{navigation.navigate('EditProfil')}}
-          icon={<Icon name="edit" type="font-awesome" color="#ffffff" />}
-          title="EditProfil"
-          buttonStyle={styles.editButton}
-        />
+      <Button
+        icon={<Icon name="EditProfil" type="font-awesome" color="#ffffff" />}
+        title="EditProfil"
+        onPress={() => navigation.navigate('EditProfil', { id: props.route.params.id })}
+        buttonStyle={styles.editButton}
+      />
       </View>
     </View>
   );
