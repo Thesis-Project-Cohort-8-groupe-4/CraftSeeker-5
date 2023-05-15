@@ -3,15 +3,30 @@ const reportsOftheClientRouter = express.Router()
 const conn = require('../database/index')
 
 reportsOftheClientRouter.post('/addclientreport',(req,res)=>{
-    const {workerId , clientId, clientReportingWorkerTitle , clientReportingWorkerBody} =  req.body
+    const {workersId , clientId, clientReportingWorkerTitle , clientReportingWorkerBody} =  req.body
     const clientReportDate = new Date().toISOString().slice(0,19).replace('T',' ')
     const  sql = `INSERT INTO reportsoftheclients (clientId, workersId, clientReportingWorkerTitle, clientReportingWorkerBody, clientReportDate) 
     VALUES (?, ?, ?, ?, ?);`
-    conn.query(sql,[clientId, workerId, clientReportingWorkerTitle, clientReportingWorkerBody, clientReportDate],(err,results)=>{
+    conn.query(sql,[clientId, workersId, clientReportingWorkerTitle, clientReportingWorkerBody, clientReportDate],(err,results)=>{
         if(err){
             console.log(err)
             res.status(500).json(err)    
         }
+        res.status(200).json(results)
+    })
+})
+
+reportsOftheClientRouter.get('/getreportsofclientsbyworkerid/:workersId',(req,res)=>{
+    const {workersId} = req.params
+    const sql = `SELECT reportsoftheclients.* ,clients.clientFirstName ,clients.clientLastName FROM reportsoftheclients
+    INNER JOIN clients ON reportsoftheclients.clientId = clients.clientId
+    WHERE workersId = ?` 
+    conn.query(sql,[workersId],(err,results)=>{
+        if(err){
+            console.log(err)
+            res.status(500).json(err)
+        }
+        console.log(results)
         res.status(200).json(results)
     })
 })

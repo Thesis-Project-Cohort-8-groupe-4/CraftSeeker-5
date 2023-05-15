@@ -21,7 +21,7 @@ USE `craftseeker` ;
 -- Table `craftseeker`.`clients`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `craftseeker`.`clients` (
-  `clientId` INT NOT NULL AUTO_INCREMENT,
+  `clientId` VARCHAR(255) NOT NULL,
   `clientFirstName` VARCHAR(45) NOT NULL,
   `clientAdress` VARCHAR(255) NOT NULL,
   `clientEmail` VARCHAR(45) NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `craftseeker`.`clients` (
   UNIQUE INDEX `clientEmail_UNIQUE` (`clientEmail` ASC) VISIBLE,
   UNIQUE INDEX `clientPhone_UNIQUE` (`clientPhone` ASC) VISIBLE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 6
+AUTO_INCREMENT = 10
 DEFAULT CHARACTER SET = utf8mb3;
 
 
@@ -42,7 +42,7 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- Table `craftseeker`.`workers`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `craftseeker`.`workers` (
-  `workersId` INT NOT NULL AUTO_INCREMENT,
+  `workersId` VARCHAR(255) NOT NULL,
   `workerFirstName` VARCHAR(45) NOT NULL,
   `workerLastName` VARCHAR(45) NOT NULL,
   `workerAdress` VARCHAR(45) NOT NULL,
@@ -59,12 +59,13 @@ CREATE TABLE IF NOT EXISTS `craftseeker`.`workers` (
   `workerProfessionalSummary` LONGTEXT NULL DEFAULT NULL,
   `workerTotalRating` INT NULL DEFAULT NULL,
   `workerBio` LONGTEXT NULL DEFAULT NULL,
+  `workerHourlyPrice` INT NULL DEFAULT NULL,
   PRIMARY KEY (`workersId`),
   UNIQUE INDEX `workersId_UNIQUE` (`workersId` ASC) VISIBLE,
   UNIQUE INDEX `workerEmail_UNIQUE` (`workerEmail` ASC) VISIBLE,
   UNIQUE INDEX `workerPhoneNumber_UNIQUE` (`workerPhoneNumber` ASC) VISIBLE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 6
+AUTO_INCREMENT = 15
 DEFAULT CHARACTER SET = utf8mb3;
 
 
@@ -73,12 +74,11 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `craftseeker`.`chatrooms` (
   `roomId` VARCHAR(255) NOT NULL,
-  `clientId` INT NOT NULL,
-  `workersId` INT NOT NULL,
+  `clientId` VARCHAR(255) NOT NULL,
+  `workersId` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`roomId`),
-  INDEX `clientId` (`clientId` ASC) VISIBLE,
-  INDEX `workersId` (`workersId` ASC) VISIBLE,
-  UNIQUE INDEX `roomId_UNIQUE` (`roomId` ASC) VISIBLE,
+  INDEX `reportsoftheworkers_ibfk_10_idx` (`clientId` ASC) VISIBLE,
+  INDEX `reportsoftheworkers_ibfk_20_idx` (`workersId` ASC) VISIBLE,
   CONSTRAINT `reportsoftheworkers_ibfk_10`
     FOREIGN KEY (`clientId`)
     REFERENCES `craftseeker`.`clients` (`clientId`),
@@ -94,14 +94,14 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `craftseeker`.`reportsoftheclients` (
   `clientReportId` INT NOT NULL AUTO_INCREMENT,
-  `clientId` INT NOT NULL,
-  `workersId` INT NOT NULL,
+  `clientId` VARCHAR(255) NOT NULL,
+  `workersId` VARCHAR(255) NOT NULL,
   `clientReportingWorkerTitle` VARCHAR(255) NOT NULL,
   `clientReportingWorkerBody` LONGTEXT NOT NULL,
   `clientReportDate` DATETIME NOT NULL,
   PRIMARY KEY (`clientReportId`),
-  INDEX `clientId` (`clientId` ASC) VISIBLE,
-  INDEX `workersId` (`workersId` ASC) VISIBLE,
+  INDEX `reportsoftheclients_ibfk_1_idx` (`clientId` ASC) VISIBLE,
+  INDEX `reportsoftheclients_ibfk_2_idx` (`workersId` ASC) VISIBLE,
   CONSTRAINT `reportsoftheclients_ibfk_1`
     FOREIGN KEY (`clientId`)
     REFERENCES `craftseeker`.`clients` (`clientId`),
@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS `craftseeker`.`reportsoftheclients` (
     FOREIGN KEY (`workersId`)
     REFERENCES `craftseeker`.`workers` (`workersId`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 2
+AUTO_INCREMENT = 8
 DEFAULT CHARACTER SET = utf8mb3;
 
 
@@ -118,14 +118,14 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `craftseeker`.`reportsoftheworkers` (
   `workerReportId` INT NOT NULL AUTO_INCREMENT,
-  `clientId` INT NOT NULL,
-  `workersId` INT NOT NULL,
+  `clientId` VARCHAR(255) NOT NULL,
+  `workersId` VARCHAR(255) NOT NULL,
   `workerReportingClientTitle` VARCHAR(255) NOT NULL,
   `workerReportingClientBody` LONGTEXT NOT NULL,
   `workerReportDate` DATETIME NOT NULL,
   PRIMARY KEY (`workerReportId`),
-  INDEX `clientId` (`clientId` ASC) VISIBLE,
-  INDEX `workersId` (`workersId` ASC) VISIBLE,
+  INDEX `reportsoftheworkers_ibfk_1_idx` (`clientId` ASC) VISIBLE,
+  INDEX `reportsoftheworkers_ibfk_2_idx` (`workersId` ASC) VISIBLE,
   CONSTRAINT `reportsoftheworkers_ibfk_1`
     FOREIGN KEY (`clientId`)
     REFERENCES `craftseeker`.`clients` (`clientId`),
@@ -142,13 +142,13 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `craftseeker`.`reviews` (
   `reviewId` INT NOT NULL AUTO_INCREMENT,
-  `clients_clientId` INT NOT NULL,
-  `workers_workersId` INT NOT NULL,
+  `clients_clientId` VARCHAR(255) NOT NULL,
+  `workers_workersId` VARCHAR(255) NOT NULL,
   `reviewText` LONGTEXT NOT NULL,
   `reviewDate` DATETIME NOT NULL,
   PRIMARY KEY (`reviewId`),
-  INDEX `clients_clientId` (`clients_clientId` ASC) VISIBLE,
-  INDEX `workers_workersId` (`workers_workersId` ASC) VISIBLE,
+  INDEX `reviews_ibfk_1_idx` (`clients_clientId` ASC) VISIBLE,
+  INDEX `reviews_ibfk_2_idx` (`workers_workersId` ASC) VISIBLE,
   CONSTRAINT `reviews_ibfk_1`
     FOREIGN KEY (`clients_clientId`)
     REFERENCES `craftseeker`.`clients` (`clientId`),
@@ -165,14 +165,15 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `craftseeker`.`tasks` (
   `taskId` INT NOT NULL AUTO_INCREMENT,
-  `clients_clientId` INT NOT NULL,
-  `workers_workersId` INT NOT NULL,
+  `clients_clientId` VARCHAR(255) NOT NULL,
+  `workers_workersId` VARCHAR(255) NOT NULL,
   `taskTitle` VARCHAR(255) NOT NULL,
   `taskText` LONGTEXT NOT NULL,
   `taskDate` DATETIME NOT NULL,
+  `taskStatus` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`taskId`),
-  INDEX `clients_clientId` (`clients_clientId` ASC) VISIBLE,
-  INDEX `workers_workersId` (`workers_workersId` ASC) VISIBLE,
+  INDEX `tasks_ibfk_1_idx` (`clients_clientId` ASC) VISIBLE,
+  INDEX `tasks_ibfk_2_idx` (`workers_workersId` ASC) VISIBLE,
   CONSTRAINT `tasks_ibfk_1`
     FOREIGN KEY (`clients_clientId`)
     REFERENCES `craftseeker`.`clients` (`clientId`),
@@ -180,7 +181,7 @@ CREATE TABLE IF NOT EXISTS `craftseeker`.`tasks` (
     FOREIGN KEY (`workers_workersId`)
     REFERENCES `craftseeker`.`workers` (`workersId`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 2
+AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = utf8mb3;
 
 

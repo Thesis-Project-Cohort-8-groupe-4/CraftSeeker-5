@@ -5,6 +5,9 @@ require('dotenv').config();
 const bcrypt = require("bcrypt");
 const { authenticateToken } = require("../middlewares/jwt.js");
 const jwt = require('jsonwebtoken');
+const crypto = require("crypto")
+const fs = require("fs")
+const multer = require('multer')
 
 
 
@@ -30,6 +33,7 @@ workerRouter.post('/addworkerman',(req,res)=>{
     })
 })
 
+
 workerRouter.post('/addworker', async (req, res) => {
     const {
         workerFirstName,
@@ -40,9 +44,11 @@ workerRouter.post('/addworker', async (req, res) => {
         workerDateOfBirth,
         workerPhoneNumber,
         workerJob,
-        workerPassword
+        workerPassword,
+        imageUrl,
+        workersId
     } = req.body;
-  
+
     const hashedPassword = async () => {
         try {
             const salt = await bcrypt.genSalt(10);
@@ -52,19 +58,35 @@ workerRouter.post('/addworker', async (req, res) => {
             console.log(error);
         }
     };
-  
+    // const workersId = crypto.randomBytes(32).toString("hex")
     const hPassword = await hashedPassword();
-  
-    const sql = `INSERT INTO workers (workerFirstName, workerLastName, workerAdress, workerEmail, workerCategory, workerDateOfBirth, workerPhoneNumber, workerJob,workerPassword ) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`
-    conn.query(sql, [workerFirstName, workerLastName, workerAdress, workerEmail, workerCategory, workerDateOfBirth, workerPhoneNumber, workerJob, hPassword], (err, results) => {
-        if (err) {
-            console.log(err)
-            res.status(500).json(err)
-        }
-        res.status(200).json(results)
+
+    const sql = `INSERT INTO workers ( workersId,workerFirstName, workerLastName, workerAdress, workerEmail, workerCategory, workerDateOfBirth, workerPhoneNumber, workerJob,workerPassword,imageUrl) 
+    VALUES (?,?, ?, ?, ?, ?, ?, ?, ?,?, ?)`;
+    conn.query(sql, [workersId ,workerFirstName, workerLastName, workerAdress, workerEmail, workerCategory, workerDateOfBirth, workerPhoneNumber, workerJob, hPassword,imageUrl], (err, results) => {
+            if(err){
+                console.log(err)
+                res.status(500).json(err)
+            }
+            console.log(results)
+            res.status(200).json(results)        
     })
-  })
+})
+
+workerRouter.get('/getWorkersInfo', (req, res) => {
+    const sql = `SELECT workerFirstName, workerJob, workerHourlyPrice,workerRating  FROM workers;`;
+    conn.query(sql, (err, results) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json(err);
+        return;
+      }
+      res.status(200).json(results);
+    });
+  });
+     
+    
+  
 
 workerRouter.put('/completeAprofile/:id', (req, res) => {
     const id = req.params.id;
@@ -188,10 +210,71 @@ workerRouter.post('/login', authenticateToken, async (req, res) => {
     });
   });
 
+  workerRouter.get('/getWorkersInfo', (req, res) => {
+    const sql = `SELECT workerFirstName, workerJob, workerHourlyPrice FROM workers;`;
+    conn.query(sql, (err, results) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json(err);
+        return;
+      }
+      res.status(200).json(results);
+    });
+  });
   
+  workerRouter.post('/uploadFile', (req, res, next) => {
+    const storage = multer.diskStorage({
+      destination: function (req, file, cb) {
+        const uplDir="uploads/"
+        if(!fs.existsSync(uplDir)){
+            fs.mkdirSync(uplDir)
+        }
+        cb(null, uplDir);
+      },
+      filename: function (req, file, cb) {
+        cb(null, file.originalname);
+      }
+    });
+  
+    const upload = multer({ storage }).single('profile-image');
+    upload(req, res, function (err) {
+      if (err) {
+        return res.send(err);
+      }
+      console.log('File uploaded to server');
+      console.log(req.file);
+  
+      // SEND FILE TO CLOUDINARY
+      const cloudinary = require('cloudinary').v2;
+      cloudinary.config({
+        cloud_name: 'dilwfvmbr',
+        api_key: '443273299735126',
+        api_secret: 'gv4yova2aVkz0IyYgwRcqAjV7EM',
+        secure: true
+      });
+  
+      const path = require('path');
+      const filePath = path.resolve(req.file.path);
+      const uniqueFilename = new Date().toISOString(); 
+  
+      cloudinary.uploader.upload(filePath, {
+        public_id: `Workers/${uniqueFilename}`,
+        tags: 'Workers'
+      }, function (err, result) {
+        if (err) {
+          console.log('Error uploading file to Cloudinary');
+          return res.send(err);
+        }
+  
+        
+        fs.unlinkSync(filePath);
+  
+        res.json(result.url);
+      }).then();
+    })
+    
+  });
 
-
-
-
+  
 
 module.exports = workerRouter

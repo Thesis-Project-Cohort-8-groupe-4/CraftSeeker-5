@@ -19,8 +19,6 @@ chatroomsRouter.get('/getworkerinbox/:workerId',(req,res)=>{
 })
 
 
-
-
 chatroomsRouter.get('/getclientinbox/:clientId',(req,res)=>{
     const {clientId} = req.params
     const sql =`SELECT chatrooms.roomId , workers.workerFirstName , workers.workerLastName
@@ -35,6 +33,20 @@ chatroomsRouter.get('/getclientinbox/:clientId',(req,res)=>{
       console.log(results)
       res.status(200).json(results)
     })
+  })
+
+
+  chatroomsRouter.get("/getchatroombymembers/:workersId/:clientId",(req,res)=>{
+     const {workersId,clientId} = req.params
+     const sql = "SELECT roomId FROM chatrooms WHERE clientId = ? AND workersId = ? ;"
+     conn.query(sql,[clientId,workersId],(err,results)=>{
+      if(err){
+        console.log(err)
+        res.status(500).json(err)
+      }
+      console.log(results)
+      res.status(200).json(results)
+     })
   })
 
 module.exports=chatroomsRouter

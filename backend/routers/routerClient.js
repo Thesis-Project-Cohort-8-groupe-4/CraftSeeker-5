@@ -5,8 +5,9 @@ const bcrypt = require("bcrypt")
 require('dotenv').config();
 const { authenticateToken } = require("../middlewares/jwt.js");
 const jwt = require('jsonwebtoken');
+const crypto = require("crypto")
 
-clientRouter.post('/addclient',(req,res)=>{
+clientRouter.post('/addclients',(req,res)=>{
     const data = req.body
     console.log(data)
     const sql = `INSERT INTO clients (clientFirstName, clientLastName, clientAdress, clientEmail, clientPhone, clientDateOfBirth) 
@@ -15,13 +16,14 @@ clientRouter.post('/addclient',(req,res)=>{
         if (err){
             console.log(err)
             res.status(500).json(err)
-        }
+        } 
         res.status(200).json(results)
     })
 })
 
 clientRouter.post('/addclient', async (req, res) => {
     const {
+        clientId,
         clientFirstName,
         clientAdress,
         clientEmail,
@@ -29,29 +31,28 @@ clientRouter.post('/addclient', async (req, res) => {
         clientDateOfBirth,
         clientLastName,
         clientPassword,
+        imageUrl
     } = req.body;
   
-    const hashedPassword = async () => {
+   
         try {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(clientPassword, salt);
-            return hashedPassword;
+  
+            const sql = `INSERT INTO clients (clientId,clientFirstName, clientAdress, clientEmail, clientPhone, clientDateOfBirth, clientLastName, clientPassword, imageUrl) 
+            VALUES (? , ? ,?, ?, ?, ?, ?, ?, ?);`
+            conn.query(sql, [clientId,clientFirstName, clientAdress, clientEmail, clientPhone, clientDateOfBirth, clientLastName,  hashedPassword ,imageUrl], (err, results) => {
+                if (err) {
+                    console.log(err)
+                    res.status(500).json(err)
+                }
+                res.status(200).json(results)
+            })
+            
         } catch (error) {
             console.log(error);
         }
-    };
   
-    const hPassword = await hashedPassword();
-  
-    const sql = `INSERT INTO workers (clientFirstName, clientAdress, clientEmail, clientPhone, clientDateOfBirth, clientLastName, hPassword) 
-    VALUES (?, ?, ?, ?, ?, ?, ?);`
-    conn.query(sql, [clientFirstName, clientAdress, clientEmail, clientPhone, clientDateOfBirth, clientLastName, hPassword], (err, results) => {
-        if (err) {
-            console.log(err)
-            res.status(500).json(err)
-        }
-        res.status(200).json(results)
-    })
   })
 
 
@@ -121,21 +122,20 @@ clientRouter.delete('/delete/:id',(req,res)=>{
 
 clientRouter.post('/login', authenticateToken, async (req, res) => {
     const { clientEmail, clientPassword } = req.body;
-    const sql = `SELECT * FROM workers WHERE workerEmail = ?`;
+    const sql = `SELECT * FROM clients WHERE clientEmail = ?`;
     conn.query(sql, [clientEmail], async (err, results) => {
         if (err) {
-            console.log(err);
-            res.status(500).json({ error: 'Internal server error' });
+            res.status(500).json({ error: 'Internal ' });
         } else if (results.length === 0) {
             res.status(401).json({ error: 'Invalid email' });
         } else {
             try {
-                const worker = results[0];
+                const client = results[0];
                 const match = await bcrypt.compare(clientPassword, client.clientPassword);
                 if (!match) {
                     res.status(401).json({ error: 'Invalid password' });
                 } else {
-                    const token = jwt.sign(worker, process.env.SECRET, { expiresIn: '24h' });
+                    const token = jwt.sign(client, process.env.SECRET, { expiresIn: '24h' });
                     res.status(200).json({ token: token ,data: client});
                 }
             } catch (err) {

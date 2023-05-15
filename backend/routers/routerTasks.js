@@ -33,6 +33,23 @@ taskRouter.get("/getworkeroffers/:workerId",(req,res)=>{
     })
 })
 
+taskRouter.get("/getworkscompeleted/:workerId",(req,res)=>{
+    const {workerId} = req.params
+    const sql = `SELECT tasks.taskId, tasks.taskTitle, tasks.taskText, clients.clientId, clients.clientFirstName, clients.clientLastName
+    FROM tasks 
+    INNER JOIN clients ON clients.clientId = tasks.clients_clientId  
+    WHERE tasks.workers_workersId = ? AND tasks.taskStatus = 'Completed';
+    `
+    conn.query(sql,[workerId],(err,results)=>{
+        if (err){
+            console.log(err)
+            res.status(500).json(err)
+        }
+        console.log(results)
+        res.status(200).json(results)
+    })
+})
+
 
 
 taskRouter.put('/changetaskstatus/:id',(req,res)=>{

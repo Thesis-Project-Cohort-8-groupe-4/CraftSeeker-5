@@ -4,11 +4,24 @@ import calendar from '../../../assets/calender.png';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Title from '../shared/Title';
 import { Button } from '@rneui/themed/dist';
-import axios, { Axios } from 'axios';
+import axios from 'axios';
+import Link from '../Link';
 
 const SignUpClient = () => {
   const [date, setDate] = useState(new Date());
   const [open, setOpen] = useState(false);
+
+  const generateId = function () {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const idLength = 32;
+    let id = '';
+    for (let i = 0; i < idLength; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      id += characters[randomIndex];
+    }
+    return id;
+  }
+  
 
   const [userInfo, setUserInfo] = useState({
     firstName: '',
@@ -22,32 +35,25 @@ const SignUpClient = () => {
 
   });
   useEffect(() => {
-    const { firstName, lastName, email, password, phoneNumber, address, dateOfBirth} = userInfo
-    console.log(  {
-        clientFirstName: firstName,
-        clientLastName: lastName,
-        clientAdress: address,
-        clientEmail: email,
-        clientCategory: category,
-        clientDateOfBirth: dateOfBirth,
-        clientPassword: password
-      })
+  
   }, [userInfo]);
 
 
   const handleSignup = () => {
     const { firstName, lastName, email, password, phoneNumber,  address, dateOfBirth } = userInfo
+   
     if (userInfo.confirmPassword !== userInfo.password) {
       Alert.alert("Passwords Dont Match!")
     } else {
-      axios.post("http://192.168.0.84:4000/api/clients/addclient", {
+      axios.post(`http://${Link}:4000/api/clients/addclient`, {
         clientFirstName: firstName,
         clientLastName: lastName,
         clientAdress: address,
         clientEmail: email,
         clientDateOfBirth: dateOfBirth,
-        clientPhoneNumber: phoneNumber,
-        clientPassword: password
+        clientPhone: phoneNumber,
+        clientPassword: password,
+        clientId :generateId()
       }).then((result) => console.log(result))
         .catch(err => console.log(err))
     }
@@ -174,4 +180,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default SignUpWorker;
+export default SignUpClient;

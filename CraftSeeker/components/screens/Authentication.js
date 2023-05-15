@@ -6,9 +6,12 @@ import googleSignInButton from '../../assets/google-signin-button.png';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import Link from './Link';
 
 
 export default function Authentication() {
+  const navigation = useNavigation()
 
   {/*HANDLERS*/ }
   const handleKeyboardDidHide = () => {
@@ -30,7 +33,7 @@ export default function Authentication() {
       console.log(token, "localstorage");
       if (token) {
         // if token exists, verify it and use it for authentication
-        const response = await axios.post('http://192.168.0.84:4000/api/clients/login', {
+        const response = await axios.post(`http://${Link}:4000/api/clients/login`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -54,7 +57,7 @@ export default function Authentication() {
 
   const attemptSignIn = async () => {
     if (selected === 'client') {
-      const response = await axios.post('http://192.168.0.84:4000/api/clients/login', {
+      const response = await axios.post(`http://${Link}:4000/api/clients/login`, {
         clientEmail: emailInput,
         clientPassword: passwordInput,
       });
@@ -70,7 +73,7 @@ export default function Authentication() {
         Alert.alert('Error', response.data.message);
       }
     } else if (selected === 'worker') {
-      const response = await axios.post('http://192.168.0.84:4000/api/workers/login', {
+      const response = await axios.post(`http://${Link}:4000/api/workers/login`, {
         workerEmail: emailInput,
         workerPassword: passwordInput,
       });
@@ -119,6 +122,15 @@ export default function Authentication() {
   useEffect(() => {
     console.log(selected);
   }, [selected])
+
+  const navigateToSignUpWorker = ()=>{
+    navigation.navigate("SignUpWorker")
+    toggleModal()
+  }
+  const navigatetoSignUpClient = ()=>{
+    navigation.navigate("SignUpClient")
+    toggleModal()
+  } 
 
   return (
     <>
@@ -204,13 +216,14 @@ export default function Authentication() {
               marginVertical: 10,
               borderRadius: 10
             }}
-            >As Client</Button>
+            onPress={navigatetoSignUpClient}>As Client</Button>
             <Button containerStyle={{
               width: 200,
               marginHorizontal: 50,
               marginVertical: 10,
               borderRadius: 10
-            }}>As Worker</Button>
+            }}
+            onPress={navigateToSignUpWorker}>As Worker</Button>
           </View>
           <View style={{ flex: 1 }}>
             <Image
@@ -358,7 +371,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    bottom: '10%', // Position it 10% above the bottom of the page
+    bottom: '10%',      // Position it 10% above the bottom of the page
   },
   connectWithText: {
     fontSize: 16,

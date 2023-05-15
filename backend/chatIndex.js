@@ -17,6 +17,7 @@ const io = new Server(server)
 io.on("connection",(socket)=>{
   socket.on("createaroom",(data)=>{
     const uniqueId = uuidv4()
+    socket.emit("getchatroom",{uniqueId:uniqueId})
     const workerId = data.workerId.toString()
     const clientId = data.clientId.toString()
     const sqlSelect=`SELECT * FROM chatrooms WHERE clientId =? AND workersId = ? ;` 
@@ -57,17 +58,12 @@ io.on("connection",(socket)=>{
 
 io.on('connection', (socket) => {
   console.log("connected to the messaging functionality")
-  socket.on("receive", async ({uniqueId,workerId,clientId,senderClient,messageText,createdAt}) => {
+  socket.on("receive", async ({uniqueId,receiverId,senderId,messageText,createdAt}) => {
     const jsonMessage = {}
-    if (senderClient){
-       jsonMessage.sender = clientId
-       jsonMessage.receiver = workerId
-    }else if(!senderClient){
-       jsonMessage.sender = workerId
-       jsonMessage.receiver = clientId
-    }
-    jsonMessage.messageText = messageText
-    jsonMessage.createdAt = createdAt
+       jsonMessage.sender = senderId
+       jsonMessage.receiver =receiverId
+       jsonMessage.messageText = messageText
+       jsonMessage.createdAt = createdAt
      await ChatRoom.updateOne({uniqueId:uniqueId},{$push:{'messages':jsonMessage}}) 
   })
 })
@@ -77,7 +73,11 @@ io.on('connection',(socket)=>{
   console.log(uniqueId)
   async function getMessages(){
     const responce = await  ChatRoom.findOne({uniqueId: uniqueId})
-    return responce
+    if(responce!== null){
+      return responce
+    }else {
+      return {messages:[]}
+    }
   }
   getMessages()
   .then(res=>{
@@ -89,6 +89,6 @@ io.on('connection',(socket)=>{
   }) 
 })
 
-server.listen(5000, () => {
-  console.log("messaging server Listening on 5000")
+server.listen(6000, () => {
+  console.log("messaging server Listening on 6000")
 })
